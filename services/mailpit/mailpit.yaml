@@ -1,0 +1,87 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mailpit-pv-claim
+  namespace: infra
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mailpit
+  namespace: infra
+  labels:
+    app: mailpit
+spec:
+  ports:
+    - port: 80
+      targetPort: 8025
+      protocol: TCP
+      name: http
+    - port: 1025
+      targetPort: 1025
+      protocol: TCP
+      name: smtp
+  selector:
+    app: mailpit
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mailpit
+  namespace: infra
+  labels:
+    app: mailpit
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mailpit
+  template:
+    metadata:
+      labels:
+        app: mailpit
+    spec:
+      containers:
+        - name: mailpit
+          image: axllent/mailpit:latest
+          args:
+            - "--smtp=0.0.0.0:1025"
+            - "--listen=0.0.0.0:8025"
+            - "--database=/data/mailpit.db"
+          ports:
+            - containerPort: 8025
+              name: http
+            - containerPort: 1025
+              name: smtp
+          volumeMounts:
+            - name: mailpit-storage
+              mountPath: /data
+      volumes:
+        - name: mailpit-storage
+          persistentVolumeClaim:
+            claimName: mailpit-pv-claim
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: mailpit-ingress
+  namespace: infra
+spec:
+  rules:
+    - host: mailpit.kube
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: mailpit
+                port:
+                  number: 80
