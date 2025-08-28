@@ -8,9 +8,10 @@ data:
     bind 0.0.0.0
     protected-mode yes
     port 6379
-    requirepass password
     maxmemory 256mb
     maxmemory-policy allkeys-lru
+  users.acl: |
+    user root on >password allcommands allkeys
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -59,6 +60,7 @@ spec:
       containers:
         - name: redis
           image: redis:8.2-alpine
+          args: ["--aclfile", "/etc/redis/users.acl"]
           ports:
             - containerPort: 6379
           volumeMounts:
@@ -70,9 +72,6 @@ spec:
         - name: redis-config
           configMap:
             name: redis-config
-            items:
-              - key: redis.conf
-                path: redis.conf
         - name: redis-storage
           persistentVolumeClaim:
             claimName: redis-pv-claim

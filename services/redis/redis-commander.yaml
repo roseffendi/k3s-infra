@@ -32,8 +32,12 @@ spec:
           ports:
             - containerPort: 8081
           env:
+            - name: REDIS_USERNAME
+              value: root
+            - name: REDIS_PASSWORD
+              value: password
             - name: REDIS_HOSTS
-              value: minikube:redis:6379:0:password
+              value: redis
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
