@@ -43,7 +43,7 @@ spec:
         app: postgres
     spec:
       containers:
-        - image: postgres:17.6
+        - image: postgres17.6-vector:minikube
           name: postgres
           env:
             - name: POSTGRES_DB

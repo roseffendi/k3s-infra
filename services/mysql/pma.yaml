@@ -36,6 +36,10 @@ spec:
               value: "mysql"
             - name: PMA_PORT
               value: "3306"
+            - name: UPLOAD_LIMIT
+              value: "200M"
+            - name: MAX_EXECUTION_TIME
+              value: "300"
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -44,6 +48,10 @@ metadata:
   namespace: infra
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/proxy-body-size: "200m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "300"
 spec:
   rules:
     - host: pma.kube
