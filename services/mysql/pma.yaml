@@ -40,6 +40,8 @@ spec:
               value: "200M"
             - name: MAX_EXECUTION_TIME
               value: "300"
+            - name: PMA_ARBITRARY
+              value: "1"
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress

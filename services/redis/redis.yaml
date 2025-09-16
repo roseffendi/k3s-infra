@@ -1,19 +1,4 @@
 apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: redis-config
-  namespace: infra
-data:
-  redis.conf: |
-    bind 0.0.0.0
-    protected-mode yes
-    port 6379
-    maxmemory 256mb
-    maxmemory-policy allkeys-lru
-  users.acl: |
-    user root on >password allcommands allkeys
----
-apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: redis-pv-claim
@@ -60,12 +45,9 @@ spec:
       containers:
         - name: redis
           image: redis:8.2-alpine
-          args: ["--aclfile", "/etc/redis/users.acl"]
           ports:
             - containerPort: 6379
           volumeMounts:
-            - name: redis-config
-              mountPath: /etc/redis
             - name: redis-storage
               mountPath: /data
       volumes:
