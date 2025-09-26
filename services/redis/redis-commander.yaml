@@ -29,6 +29,14 @@ spec:
       containers:
         - name: redis-commander
           image: ghcr.io/joeferner/redis-commander
+          imagePullPolicy: IfNotPresent
+          resources: 
+            requests:
+              cpu: 100m
+              memory: 64Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
           ports:
             - containerPort: 8081
           env:
@@ -44,7 +52,7 @@ metadata:
     nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
-    - host: rc.kube
+    - host: admin.redis.kube
       http:
         paths:
         - path: /

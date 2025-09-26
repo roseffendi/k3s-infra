@@ -1,15 +1,3 @@
-apiVersion: v1 
-kind: PersistentVolumeClaim
-metadata:
-  name: pgadmin-pv-claim
-  namespace: infra
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 1Gi
----
 apiVersion: v1
 kind: Service
 metadata:
@@ -38,16 +26,17 @@ spec:
       labels:
         app: pgadmin
     spec:
-      initContainers:
-        - name: fix-permissions
-          image: busybox
-          command: ["sh", "-c", "chown -R 5050:5050 /var/lib/pgadmin"]
-          volumeMounts:
-            - name: pgadmin-storage
-              mountPath: /var/lib/pgadmin
       containers:
         - name: pgadmin
           image: dpage/pgadmin4:latest
+          imagePullPolicy: IfNotPresent
+          resources: 
+            requests:
+              cpu: 100m
+              memory: 64Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
           ports:
             - containerPort: 80
           env:
@@ -60,8 +49,9 @@ spec:
               mountPath: /var/lib/pgadmin
       volumes:
         - name: pgadmin-storage
-          persistentVolumeClaim:
-            claimName: pgadmin-pv-claim
+          hostPath:
+            path: /var/lib/k3s-storage/pgadmin
+            type: DirectoryOrCreate
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -72,7 +62,7 @@ metadata:
     nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
-    - host: pgadmin.kube
+    - host: admin.postgres.kube
       http:
         paths:
         - path: /

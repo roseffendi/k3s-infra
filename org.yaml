@@ -1,0 +1,103 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: infra
+  labels:
+    name: infra
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: docker-registry
+  namespace: infra
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: docker-registry
+  template:
+    metadata:
+      labels:
+        app: docker-registry
+    spec:
+      containers:
+        - name: registry
+          image: registry:2.8.2
+          imagePullPolicy: IfNotPresent
+          resources: 
+            requests:
+              cpu: 100m
+              memory: 512Mi
+            limits:
+              cpu: 1
+              memory: 512Mi
+          ports:
+            - containerPort: 5000
+          volumeMounts:
+            - name: registry-storage
+              mountPath: /var/lib/registry
+      volumes:
+        - name: registry-storage
+          hostPath:
+            path: /var/lib/k3s-storage/docker-registry
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: docker-registry
+  namespace: infra
+spec:
+  selector:
+    app: docker-registry
+  ports:
+    - port: 5000
+      targetPort: 5000
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: docker-registry-ingress
+  namespace: infra
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: registry.k3s.kube
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: docker-registry
+                port:
+                  number: 5000
+---
+apiVersion: traefik.io/v1alpha1
+kind: ServersTransport
+metadata:
+  name: default-transport
+  namespace: infra
+spec:
+  forwardingTimeouts:
+    responseHeaderTimeout: 300s
+    idleConnTimeout: 300s
+    dialTimeout: 300s
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: 200mb-body-middleware
+  namespace: infra
+spec:
+  buffering:
+    maxRequestBodyBytes: 209715200   # 200 MB
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: replace-path-middleware
+  namespace: infra
+spec:
+  replacePath:
+    path: /
+---

@@ -1,16 +1,4 @@
 apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: postgres-pv-claim
-  namespace: infra
-spec:
-  accessModes: 
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 10Gi
----
-apiVersion: v1
 kind: Service
 metadata:
   name: postgres
@@ -43,8 +31,16 @@ spec:
         app: postgres
     spec:
       containers:
-        - image: postgres17.6-vector:minikube
+        - image: registry.k3s.kube/postgres17.6-vector:kube
+          imagePullPolicy: IfNotPresent
           name: postgres
+          resources: 
+            requests:
+              cpu: 100m
+              memory: 512Mi
+            limits:
+              cpu: 1
+              memory: 512Mi
           env:
             - name: POSTGRES_DB
               value: postgresdb
@@ -52,6 +48,8 @@ spec:
               value: root
             - name: POSTGRES_PASSWORD
               value: password
+            - name: PGSSLMODE
+              value: require
           ports:
             - containerPort: 5432
           volumeMounts:
@@ -59,5 +57,6 @@ spec:
               name: postgres-persistent-storage
       volumes:
         - name: postgres-persistent-storage
-          persistentVolumeClaim:
-            claimName: postgres-pv-claim 
+          hostPath:
+            path: /var/lib/k3s-storage/postgres
+            type: DirectoryOrCreate
