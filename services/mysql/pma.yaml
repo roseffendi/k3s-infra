@@ -70,5 +70,4 @@ spec:
       port: 80
       serversTransport: infra-default-transport@kubernetescrd
     middlewares:
-    - name: infra-replace-path-middleware@kubernetescrd
     - name: infra-200mb-body-middleware@kubernetescrd

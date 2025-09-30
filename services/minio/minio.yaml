@@ -58,7 +58,7 @@ spec:
               memory: 16Mi
             limits:
               cpu: "500m"
-              memory: 256Mi
+              memory: 512Mi
           args:
             - server
             - /data

@@ -26,6 +26,15 @@ spec:
       labels:
         app: pgadmin
     spec:
+      securityContext:
+        fsGroup: 0 
+      initContainers:
+        - name: fix-volume-permissions
+          image: busybox 
+          command: ["sh", "-c", "chmod -R g+rwX /var/lib/pgadmin"]
+          volumeMounts:
+          - name: pgadmin-storage
+            mountPath: /var/lib/pgadmin
       containers:
         - name: pgadmin
           image: dpage/pgadmin4:latest
