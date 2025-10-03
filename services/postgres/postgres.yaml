@@ -1,3 +1,41 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: postgres-root-ca
+  namespace: cert-manager
+spec:
+  isCA: true
+  duration: 87600h
+  secretName: postgres-ca-secret
+  issuerRef:
+    name: selfsigned-cluster-ca
+    kind: ClusterIssuer
+  commonName: Internal K8s Root CA for PostgreSQL
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: internal-ca-cluster-signer
+spec:
+  ca:
+    secretName: postgres-ca-secret
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: postgres-server-cert
+  namespace: infra
+spec:
+  secretName: postgres-tls-secret
+  issuerRef:
+    name: internal-ca-cluster-signer
+    kind: ClusterIssuer
+  commonName: postgres.infra.svc.cluster.local
+  dnsNames:
+    - postgres
+    - postgres.infra.svc.cluster.local
+---
 apiVersion: v1
 kind: Service
 metadata:
@@ -55,8 +93,24 @@ spec:
           volumeMounts:
             - mountPath: /var/lib/postgresql/data
               name: postgres-persistent-storage
+            - name: postgres-tls
+              mountPath: /etc/ssl/postgres-server
+              readOnly: true
+            - name: postgres-ca
+              mountPath: /etc/ssl/postgres-ca
+              readOnly: true
       volumes:
         - name: postgres-persistent-storage
           hostPath:
             path: /var/lib/k3s-storage/postgres
             type: DirectoryOrCreate
+        - name: postgres-tls
+          secret:
+            secretName: postgres-tls-secret
+            defaultMode: 0400 
+        - name: postgres-ca
+          secret:
+            secretName: postgres-ca-secret
+            items:
+              - key: tls.crt 
+                path: ca.crt 
