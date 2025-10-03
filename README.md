@@ -16,5 +16,6 @@ This repository includes the following services:
 
 ## Setup
 1. Setup the Kubernetes cluster
+2. Instal reflector, `kubectl -n kube-system apply -f https://github.com/emberstack/kubernetes-reflector/releases/latest/download/reflector.yaml`
 3. Run `kubectl apply -f cluster.yaml`
 4. Run `kubectl apply -f services --recursive`
