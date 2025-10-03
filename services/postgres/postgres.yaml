@@ -2,39 +2,32 @@
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: postgres-root-ca
-  namespace: cert-manager
-spec:
-  isCA: true
-  duration: 87600h
-  secretName: postgres-ca-secret
-  issuerRef:
-    name: selfsigned-cluster-ca
-    kind: ClusterIssuer
-  commonName: Internal K8s Root CA for PostgreSQL
----
-apiVersion: cert-manager.io/v1
-kind: ClusterIssuer
-metadata:
-  name: internal-ca-cluster-signer
-spec:
-  ca:
-    secretName: postgres-ca-secret
----
-apiVersion: cert-manager.io/v1
-kind: Certificate
-metadata:
   name: postgres-server-cert
   namespace: infra
 spec:
   secretName: postgres-tls-secret
   issuerRef:
-    name: internal-ca-cluster-signer
+    name: selfsigned-cluster-ca
     kind: ClusterIssuer
   commonName: postgres.infra.svc.cluster.local
   dnsNames:
     - postgres
     - postgres.infra.svc.cluster.local
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-ssl-config
+  namespace: infra
+data:
+  postgresql.conf: |
+    listen_addresses='*'
+    ssl = on 
+    ssl_cert_file = '/etc/ssl/postgres-server/tls.crt'
+    ssl_key_file = '/etc/ssl/postgres-server/tls.key'
+    ssl_ca_file = '/etc/ssl/postgres-ca/ca.crt'
+  pg_hba.conf: |
+    hostssl all       all     0.0.0.0/0    scram-sha-256 
 ---
 apiVersion: v1
 kind: Service
@@ -68,10 +61,17 @@ spec:
       labels:
         app: postgres
     spec:
+      securityContext:
+        runAsUser: 999
+        runAsGroup: 999
+        fsGroup: 999
       containers:
         - image: registry.k3s.kube/postgres17.6-vector:kube
           imagePullPolicy: IfNotPresent
           name: postgres
+          # command: ["tail", "-f", "/dev/null"]
+          command: ['postgres']
+          args: ['-c', 'config_file=/etc/postgresql/postgresql.conf', '-c', 'hba_file=/etc/postgresql/pg_hba.conf', '-D', '/var/lib/postgresql/data']
           resources: 
             requests:
               cpu: 100m
@@ -91,12 +91,14 @@ spec:
           ports:
             - containerPort: 5432
           volumeMounts:
-            - mountPath: /var/lib/postgresql/data
-              name: postgres-persistent-storage
+            - name: postgres-persistent-storage
+              mountPath: /var/lib/postgresql/data
+            - name: postgres-ssl-config
+              mountPath: /etc/postgresql
             - name: postgres-tls
               mountPath: /etc/ssl/postgres-server
               readOnly: true
-            - name: postgres-ca
+            - name: ca-secret
               mountPath: /etc/ssl/postgres-ca
               readOnly: true
       volumes:
@@ -104,13 +106,16 @@ spec:
           hostPath:
             path: /var/lib/k3s-storage/postgres
             type: DirectoryOrCreate
+        - name: postgres-ssl-config
+          configMap:
+            name: postgres-ssl-config
         - name: postgres-tls
           secret:
             secretName: postgres-tls-secret
             defaultMode: 0400 
-        - name: postgres-ca
+        - name: ca-secret
           secret:
-            secretName: postgres-ca-secret
+            secretName: ca-secret
             items:
               - key: tls.crt 
                 path: ca.crt 
