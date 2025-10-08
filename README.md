@@ -1,9 +1,7 @@
-# Simple Kubernetes Infrastructure
+# Simple Kubernetes Infrastructure (K3S)
 **:warning::fire: NOT FOR PRODUCTION :fire::warning:**
 
 This repository is intended to create a simple Kubernetes development infrastructure environment (**All credentials are hardcoded and not secure at all**). It can become a starting point and feel free to adjust it. This cluster is using k3s kubernetes distribution.
-
-This repository includes the following services:
 
 1. Mailpit (`latest`)
 2. Minio (`RELEASE.2025-04-22T22-12-26Z-cpuv1`)
