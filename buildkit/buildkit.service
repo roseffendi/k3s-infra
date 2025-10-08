@@ -1,0 +1,23 @@
+[Unit]
+Description=BuildKit Daemon
+Documentation=https://github.com/moby/buildkit
+Requires=k3s.service
+After=k3s.service
+
+[Service]
+Type=exec
+
+Adjust the path if you installed buildkitd elsewhere
+ExecStart=/usr/local/bin/buildkitd
+Restart=always
+RestartSec=5s
+KillMode=process
+
+Security directives (Recommended but optional)
+NoNewPrivileges=yes
+ProtectSystem=full
+ProtectHome=yes
+MemoryDenyWriteExecute=yes
+
+[Install]
+WantedBy=multi-user.target

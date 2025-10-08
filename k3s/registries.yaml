@@ -1,0 +1,8 @@
+mirrors:
+  "registry.k3s.kube":
+    endpoint:
+      - "http://registry.k3s.kube/v2"
+configs:
+  "registry.k3s.kube":
+    tls:
+      insecure_skip_verify: true

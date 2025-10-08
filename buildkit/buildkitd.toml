@@ -1,0 +1,10 @@
+debug = true
+[worker.containerd]
+  address = "/run/k3s/containerd/containerd.sock"
+  enabled = true
+  platforms = [ "linux/amd64", "linux/arm64" ]
+  namespace = "k3s.io"
+[registry."registry.k3s.kube"]
+  mirrors = ["registry.k3s.kube"]
+  http = true
+  insecure = true
