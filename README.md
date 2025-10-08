@@ -13,6 +13,7 @@ This repository includes the following services:
 3. MySql + PhpMyAdmin
 4. PostgreSql + PgAdmin 4
 5. Redis + Redis Commander
+5. Mongodb + Mongodb Express
 
 ## Setup
 1. Setup the Kubernetes cluster
