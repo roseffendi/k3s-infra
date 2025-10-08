@@ -27,7 +27,8 @@ data:
     ssl_key_file = '/etc/ssl/postgres-server/tls.key'
     ssl_ca_file = '/etc/ssl/postgres-ca/ca.crt'
   pg_hba.conf: |
-    hostssl all       all     0.0.0.0/0    scram-sha-256 
+    hostssl all       all     0.0.0.0/0    scram-sha-256
+    host    all       all     0.0.0.0/0    trust 
 ---
 apiVersion: v1
 kind: Service
@@ -65,13 +66,25 @@ spec:
         runAsUser: 999
         runAsGroup: 999
         fsGroup: 999
+      initContainers:
+        - image: registry.k3s.kube/postgres17.6-vector:kube
+          imagePullPolicy: IfNotPresent
+          name: fix-ownerships
+          command:
+            - sh
+            - -c
+            - |
+              chmod -R 750 /var/lib/postgresql/data && chown -R 999:999 /var/lib/postgresql/data
+          volumeMounts:
+            - name: postgres-persistent-storage
+              mountPath: /var/lib/postgresql/data
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
       containers:
         - image: registry.k3s.kube/postgres17.6-vector:kube
           imagePullPolicy: IfNotPresent
           name: postgres
-          # command: ["tail", "-f", "/dev/null"]
-          command: ['postgres']
-          args: ['-c', 'config_file=/etc/postgresql/postgresql.conf', '-c', 'hba_file=/etc/postgresql/pg_hba.conf', '-D', '/var/lib/postgresql/data']
           resources: 
             requests:
               cpu: 100m
@@ -94,13 +107,31 @@ spec:
             - name: postgres-persistent-storage
               mountPath: /var/lib/postgresql/data
             - name: postgres-ssl-config
-              mountPath: /etc/postgresql
+              mountPath: /tmp/pg-config
             - name: postgres-tls
               mountPath: /etc/ssl/postgres-server
               readOnly: true
             - name: ca-secret
               mountPath: /etc/ssl/postgres-ca
               readOnly: true
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  [
+                    "/bin/sh",
+                    "-c",
+                    # 1. Wait for the server socket to ensure startup/initdb is done
+                    "until [ -f /var/lib/postgresql/data/postmaster.pid ]; do echo Waiting for active server lock...; sleep 1; done;",
+                    
+                    # 2. Copy/overwrite the custom files into the PGDATA directory
+                    "echo Overwriting default configuration files...",
+                    "cp /tmp/pg-config/postgresql.conf /var/lib/postgresql/data/postgresql.conf",
+                    "cp /tmp/pg-config/pg_hba.conf /var/lib/postgresql/data/pg_hba.conf",
+
+                    # 3. Tell PostgreSQL to reload the configuration files immediately
+                    "pg_ctl reload -D /var/lib/postgresql/data",
+                  ]
       volumes:
         - name: postgres-persistent-storage
           hostPath:

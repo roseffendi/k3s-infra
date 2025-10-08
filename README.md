@@ -16,6 +16,7 @@ This repository includes the following services:
 
 ## Setup
 1. Setup the Kubernetes cluster
-2. Instal reflector, `kubectl -n kube-system apply -f https://github.com/emberstack/kubernetes-reflector/releases/latest/download/reflector.yaml`
-3. Run `kubectl apply -f cluster.yaml`
-4. Run `kubectl apply -f services --recursive`
+2. Install cert manager `kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.18.2/cert-manager.yaml`
+3. Instal reflector, `kubectl -n kube-system apply -f https://github.com/emberstack/kubernetes-reflector/releases/latest/download/reflector.yaml`
+4. Run `kubectl apply -f cluster.yaml`
+5. Run `kubectl apply -f services --recursive`

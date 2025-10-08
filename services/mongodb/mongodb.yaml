@@ -1,39 +1,39 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: mysql
+  name: mongodb
   namespace: infra
   labels:
-    app: mysql
+    app: mongodb
 spec:
   ports:
-    - port: 3306
+    - port: 27017
   selector:
-    app: mysql
+    app: mongodb
   clusterIP: None
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mysql
+  name: mongodb
   namespace: infra
   labels:
-    app: mysql
+    app: mongodb
 spec:
   selector:
     matchLabels:
-      app: mysql
+      app: mongodb
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        app: mysql
+        app: mongodb
     spec:
       containers:
-        - image: mysql:8.0
+        - image: mongo:8.0.15-noble
           imagePullPolicy: IfNotPresent
-          name: mysql
+          name: mongodb
           resources: 
             requests:
               cpu: 100m
@@ -42,16 +42,18 @@ spec:
               cpu: 1
               memory: 1Gi
           env:
-            - name: MYSQL_ROOT_PASSWORD
+            - name: MONGO_INITDB_ROOT_USERNAME
+              value: "root"
+            - name: MONGO_INITDB_ROOT_PASSWORD
               value: "password"
           ports:
-            - containerPort: 3306
-              name: mysql
+            - containerPort: 27017
+              name: mongodb
           volumeMounts:
-            - name: mysql-persistent-storage
-              mountPath: /var/lib/mysql
+            - name: mongodb-persistent-storage
+              mountPath: /data/db
       volumes:
-        - name: mysql-persistent-storage
+        - name: mongodb-persistent-storage
           hostPath:
-            path: /var/lib/k3s-storage/mysql
+            path: /var/lib/k3s-storage/mongodb
             type: DirectoryOrCreate
