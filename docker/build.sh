@@ -1,12 +1,17 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if [ $# -lt 1 ]; then
-    echo "Usage: $0 <docker_dirs_file>"
-    exit 1
-fi
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+DEFAULT_FILE="$SCRIPT_DIR/build-dirs.txt"
 
-DOCKER_DIRS_FILE="$1"
+if [ $# -ge 1 ]; then
+    DOCKER_DIRS_FILE="$1"
+    CONFIG_BASE_DIR=$(cd "$(dirname "$1")" && pwd)
+else
+    DOCKER_DIRS_FILE="$DEFAULT_FILE"
+    CONFIG_BASE_DIR="$SCRIPT_DIR"
+
+fi
 
 if [ ! -f "$DOCKER_DIRS_FILE" ]; then
     echo "File '$DOCKER_DIRS_FILE' not found."
@@ -16,14 +21,23 @@ fi
 # Read docker directories from file into an array
 DOCKERFILE_DIRS=()
 while IFS= read -r line || [ -n "$line" ]; do
-    echo "Registering directory: $line"
-    [ -n "$line" ] && DOCKERFILE_DIRS+=("$line")
+    if [[ ! "$line" =~ ^[[:space:]]*# ]] && [ -n "$line" ]; then
+        echo "Registering directory: $line"
+        # Add to the array
+        DOCKERFILE_DIRS+=("$line")
+    fi
 done < "$DOCKER_DIRS_FILE"
 
 # Loop through each registered directory
-for dir in "${DOCKERFILE_DIRS[@]}"; do
-    echo "Processing directory: $dir"
-    for dockerfile_path in "$dir"/*.dockerfile; do
+for DIR in "${DOCKERFILE_DIRS[@]}"; do
+    if [[ "$DIR" != /* ]]; then
+        RESOLVED_DIR="$CONFIG_BASE_DIR/$DIR"
+    else
+        RESOLVED_DIR="$DIR"
+    fi
+
+    echo "Processing directory: $RESOLVED_DIR"
+    for dockerfile_path in "$RESOLVED_DIR"/*.dockerfile; do
         # Skip if no dockerfile exists
         [ -e "$dockerfile_path" ] || continue
         
@@ -38,7 +52,7 @@ for dir in "${DOCKERFILE_DIRS[@]}"; do
             --insecure-registry \
             --progress plain \
             -t "$image_tag" -f "$dockerfile_path" \
-             "$dir"
+             "$RESOLVED_DIR"
 
         echo "Pushing image: $image_tag to registry"
 

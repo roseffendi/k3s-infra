@@ -14,33 +14,47 @@ This repository includes the following services:
 
 ## Configure the cluster
 
-1. Install k3s
-2. Copy /etc/rancher/k3s/k3s.yaml to ~/.kube/config and run sudo `chown $(id -u):$(id -g) ~/.kube/config` to prevent using kubectl with sudo
-3. Copy k3s/registries.yaml to /etc/rancher/k3s/registries.yaml
-4. Install nerdctl
-5. Install buildkit
-6. Copy buildkit/buildkitd.toml to /etc/buildkit/buildkitd.toml
-7. Copy buildkit/buildkit.service to /etc/systemd/system/buildkit.service
-8. Run `sudo systemctl enable buildkit.service --now` to enable and start buildkit service  
+1. Install k3s.
+2. Copy /etc/rancher/k3s/k3s.yaml to ~/.kube/config and run sudo `chown $(id -u):$(id -g) ~/.kube/config` to prevent using kubectl with sudo.
+3. Copy k3s/registries.yaml to /etc/rancher/k3s/registries.yaml.
+4. Install nerdctl.
+5. Install buildkit.
+6. Copy buildkit/buildkitd.toml to /etc/buildkit/buildkitd.toml.
+7. Copy buildkit/buildkit.service to /etc/systemd/system/buildkit.service.
+8. Run `sudo systemctl enable buildkit.service --now` to enable and start buildkit service.
 
 ## Setup the infra namespace
 
-1. Setup the Kubernetes cluster
-2. Install cert manager `kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.18.2/cert-manager.yaml`
-3. Instal reflector, `kubectl -n kube-system apply -f https://github.com/emberstack/kubernetes-reflector/releases/latest/download/reflector.yaml`
-4. Run `kubectl apply -f cluster.yaml`
+1. Setup the Kubernetes cluster.
+2. Install cert manager `kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.18.2/cert-manager.yaml`.
+3. Instal reflector, `kubectl -n kube-system apply -f https://github.com/emberstack/kubernetes-reflector/releases/latest/download/reflector.yaml`.
+4. Run `kubectl apply -f cluster.yaml`.
 
 ## Build necessary images
 
 This repository is using custom postgres image that install vector db extension. If you're not using the service, feel free to skip it
 
-1. Copy docker/build-dirs.example to docker/build-dirs.txt
-2. To add another dir as build source, add a new line with the target directory
-3. Run `./docker/build.sh` to build all registered directories
-4. The images will be registered to local registry `registry.k3s.kube` and accessible via `registry.k3s.kube/{base-filename}:kube`. For example, `postgres17.6-vector.dockerfile` will be accessible via `registry.k3s.kube/postgres17.6-vector:kube`
+1. Copy docker/build-dirs.example to docker/build-dirs.txt.
+2. To add another dir as build source, add a new line with the target directory.
+3. Run `./docker/build.sh` to build all registered directories.
+4. The images will be registered to local registry `registry.k3s.kube` and accessible via `registry.k3s.kube/{base-filename}:kube`. For example, `postgres17.6-vector.dockerfile` will be accessible via `registry.k3s.kube/postgres17.6-vector:kube`.
+5. You can skip the dir by commenting it using hashtag (`#`).
 
 ## Setup the infra services
 
-**Please note that credentials are hard coded into the yaml. It's not secure and intended for dev environment only!**
+1. Run `kubectl apply -f services services/{service-dir}` to install each service.
+2. Run `kubectl apply -f services --recursive` to install all services.
 
-1. Run `kubectl apply -f services --recursive` to install all services or you can select which service to install
+## Ingress Addresses
+
+1. http://mailpit.kube
+2. http://minio.kube
+3. http://api.minio.kube
+4. http://admin.mongodb.kube
+5. http://admin.mysql.kube
+6. http://admin.postgres.kube
+7. http://admin.redis.kube
+
+## Credentials
+
+All services are using `root` as user and `password` as password except pgadmin that is using `root@locahost.com` as email.
