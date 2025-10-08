@@ -14,7 +14,7 @@ This repository includes the following services:
 
 ## Configure the cluster
 
-1. Install k3s.
+1. Install `k3s`.
 2. Copy `/etc/rancher/k3s/k3s.yaml` to `~/.kube/config and run sudo` `chown $(id -u):$(id -g) ~/.kube/config` to prevent using kubectl with sudo.
 3. Copy `k3s/registries.yaml` to `/etc/rancher/k3s/registries.yaml`.
 4. Restart k3s service `sudo systemctl restart k3s`.
