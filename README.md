@@ -15,8 +15,8 @@ This repository includes the following services:
 ## Configure the cluster
 
 1. Install k3s.
-2. Copy /etc/rancher/k3s/k3s.yaml to ~/.kube/config and run sudo `chown $(id -u):$(id -g) ~/.kube/config` to prevent using kubectl with sudo.
-3. Copy k3s/registries.yaml to /etc/rancher/k3s/registries.yaml.
+2. Copy `/etc/rancher/k3s/k3s.yaml` to `~/.kube/config and run sudo` `chown $(id -u):$(id -g) ~/.kube/config` to prevent using kubectl with sudo.
+3. Copy `k3s/registries.yaml` to `/etc/rancher/k3s/registries.yaml`.
 4. Restart k3s service `sudo systemctl restart k3s`.
 5. Edit traefik deployment `kubectl -n kube-system edit deploy/traefik` and add `--providers.kubernetescrd.allowCrossNamespace=true` on `spec.template.spec.args`
 
@@ -31,17 +31,15 @@ This repository includes the following services:
 
 This repository is using custom postgres image that install vector db extension. If you're not using the service, feel free to skip it
 
-1. Install nerdctl.
-2. Install buildkit.
-3. Copy buildkit/buildkitd.toml to /etc/buildkit/buildkitd.toml.
-4. Copy buildkit/buildkit.service to /etc/systemd/system/buildkit.service.
+1. Install `nerdctl`.
+2. Install `buildkit`.
+3. Copy `buildkit/buildkitd.toml to /etc/buildkit/buildkitd.toml`.
+4. Copy `buildkit/buildkit.service to /etc/systemd/system/buildkit.service`.
 5. Run `sudo systemctl enable buildkit.service --now` to enable and start buildkit service.
-6. Copy docker/build-dirs.example to docker/build-dirs.txt.
-7. To add another dir as build source, add a new line with the target directory.
-8. Run `./docker/build.sh` to build all registered directories.
-9. The images will be registered to local registry `registry.k3s.kube` and accessible via `registry.k3s.kube/{base-filename}:kube`. For example, `postgres17.6-vector.dockerfile` will be accessible via `registry.k3s.kube/postgres17.6-vector:kube`.
-10. You can skip the build dir by commenting the line using hashtag (`#`).
-11. You can add nerdctl to NOPASSWD to skip password prompt.
+6. Copy `docker/build-dirs.example` to `docker/build-dirs.txt`. To add another dir as build source, add a new line with the target directory. You can skip the build dir by commenting the line using hashtag (`#`).
+7. Run `./docker/build.sh` to build all registered directories.
+8. The images will be registered to local registry `registry.k3s.kube` and accessible via `registry.k3s.kube/{base-filename}:kube`. For example, `postgres17.6-vector.dockerfile` will be accessible via `registry.k3s.kube/postgres17.6-vector:kube`.
+9. You can add nerdctl to NOPASSWD to skip password prompt.
 
 ## Setup the infra services
 
