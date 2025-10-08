@@ -1,5 +1,5 @@
 # Simple Kubernetes Infrastructure
-**[NOT FOR PRODUCTION]**
+**:fire:[NOT FOR PRODUCTION]:fire:**
 
 This repository is intended to create a simple Kubernetes development infrastructure environment. It can become a starting point and adjust it by yourself. This cluster is using k3s kubernetes distribution.
 
