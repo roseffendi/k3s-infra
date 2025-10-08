@@ -39,7 +39,7 @@ This repository is using custom postgres image that install vector db extension.
 6. Copy `docker/build-dirs.example` to `docker/build-dirs.txt`. To add another dir as build source, add a new line with the target directory. You can skip the build dir by commenting the line using hashtag (`#`).
 7. Run `./docker/build.sh` to build all registered directories.
 8. The images will be registered to local registry `registry.k3s.kube` and accessible via `registry.k3s.kube/{base-filename}:kube`. For example, `postgres17.6-vector.dockerfile` will be accessible via `registry.k3s.kube/postgres17.6-vector:kube`.
-9. You can add nerdctl to NOPASSWD to skip password prompt.
+9. You can add `nerdctl` to NOPASSWD to skip password prompt.
 
 ## Setup the infra services
 
