@@ -43,8 +43,9 @@ This repository is using custom postgres image that install vector db extension.
 
 ## Setup the infra services
 
-1. Run `kubectl apply -f services services/{service-dir}` to install each service.
-2. Run `kubectl apply -f services --recursive` to install all services.
+1. Run `sudo mkdir -p /var/lib/k3s-storage` to prepare volume for persistent storage.
+2. Run `kubectl apply -f services services/{service-dir}` to install each service.
+3. Run `kubectl apply -f services --recursive` to install all services.
 
 ## Ingress Addresses
 
