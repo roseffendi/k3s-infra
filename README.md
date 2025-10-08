@@ -5,12 +5,12 @@ This repository is intended to create a simple Kubernetes development infrastruc
 
 This repository includes the following services:
 
-1. Mailpit
-2. Minio
-3. MySql + PhpMyAdmin
-4. PostgreSql + PgAdmin 4
-5. Redis + Redis Commander
-5. Mongodb + Mongodb Express
+1. Mailpit (latest)
+2. Minio (RELEASE.2025-04-22T22-12-26Z-cpuv1)
+3. Mongodb (8.0.15-noble) + Mongodb Express (1.0.2-20-alpine3.19)
+4. MySql (8.0) + PhpMyAdmin (latest)
+5. PostgreSql (17.6-trixie) + PgAdmin 4 (latest)
+6. Redis (8.2-alpine) + Redis Commander (ghcr.io/joeferner/redis-commander:latest)
 
 ## Configure the cluster
 
