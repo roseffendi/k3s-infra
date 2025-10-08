@@ -1,16 +1,16 @@
 # Simple Kubernetes Infrastructure
-**:fire: NOT FOR PRODUCTION :fire:**
+**:warning::fire: NOT FOR PRODUCTION :fire::warning:**
 
-This repository is intended to create a simple Kubernetes development infrastructure environment. It can become a starting point and adjust it by yourself. This cluster is using k3s kubernetes distribution.
+This repository is intended to create a simple Kubernetes development infrastructure environment (**All credentials are hardcoded and not secure at all**). It can become a starting point and feel free to adjust it. This cluster is using k3s kubernetes distribution.
 
 This repository includes the following services:
 
-1. Mailpit (latest)
-2. Minio (RELEASE.2025-04-22T22-12-26Z-cpuv1)
-3. Mongodb (8.0.15-noble) + Mongodb Express (1.0.2-20-alpine3.19)
-4. MySql (8.0) + PhpMyAdmin (latest)
-5. PostgreSql (17.6-trixie) + PgAdmin 4 (latest)
-6. Redis (8.2-alpine) + Redis Commander (ghcr.io/joeferner/redis-commander:latest)
+1. Mailpit (`latest`)
+2. Minio (`RELEASE.2025-04-22T22-12-26Z-cpuv1`)
+3. Mongodb (`8.0.15-noble`) + Mongodb Express (`1.0.2-20-alpine3.19`)
+4. MySql (`8.0`) + PhpMyAdmin (`latest`)
+5. PostgreSql (`17.6-trixie`) + PgAdmin 4 (`latest`)
+6. Redis (`8.2-alpine`) + Redis Commander (`ghcr.io/joeferner/redis-commander:latest`)
 
 ## Configure the cluster
 
