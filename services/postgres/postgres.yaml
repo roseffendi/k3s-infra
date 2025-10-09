@@ -91,7 +91,7 @@ spec:
               memory: 512Mi
             limits:
               cpu: 1
-              memory: 512Mi
+              memory: 1Gi
           env:
             - name: POSTGRES_DB
               value: postgresdb
@@ -118,20 +118,20 @@ spec:
             postStart:
               exec:
                 command:
-                  [
-                    "/bin/sh",
-                    "-c",
-                    # 1. Wait for the server socket to ensure startup/initdb is done
-                    "until [ -f /var/lib/postgresql/data/postmaster.pid ]; do echo Waiting for active server lock...; sleep 1; done;",
+                  - /bin/sh
+                  - -c
+                  - | 
+                    until [ -f /var/lib/postgresql/data/postmaster.pid ]; 
+                      do echo "Waiting for active server lock..."; 
+                      sleep 1; 
+                    done;
                     
-                    # 2. Copy/overwrite the custom files into the PGDATA directory
-                    "echo Overwriting default configuration files...",
-                    "cp /tmp/pg-config/postgresql.conf /var/lib/postgresql/data/postgresql.conf",
-                    "cp /tmp/pg-config/pg_hba.conf /var/lib/postgresql/data/pg_hba.conf",
+                    echo "Overwriting default configuration files...";
 
-                    # 3. Tell PostgreSQL to reload the configuration files immediately
-                    "pg_ctl reload -D /var/lib/postgresql/data",
-                  ]
+                    cp /tmp/pg-config/postgresql.conf /var/lib/postgresql/data/postgresql.conf;
+                    cp /tmp/pg-config/pg_hba.conf /var/lib/postgresql/data/pg_hba.conf;
+
+                    pg_ctl reload -D /var/lib/postgresql/data;
       volumes:
         - name: postgres-persistent-storage
           hostPath:
