@@ -13,8 +13,8 @@ RUN apt-get update && \
     \
     git clone --branch v0.8.0 https://github.com/pgvector/pgvector.git && \
     cd pgvector && \
-    make OPTFLAGS="" && \
-    make install && \
+    PG_CONFIG=/usr/lib/postgresql/17/bin/pg_config make OPTFLAGS="" && \
+    PG_CONFIG=/usr/lib/postgresql/17/bin/pg_config make install && \
     cd .. && \
     \
     rm -rf pgvector && \

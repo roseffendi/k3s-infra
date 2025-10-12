@@ -24,6 +24,7 @@ This repository is intended to create a simple Kubernetes development infrastruc
 2. Install cert manager `kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.18.2/cert-manager.yaml`.
 3. Instal reflector, `kubectl -n kube-system apply -f https://github.com/emberstack/kubernetes-reflector/releases/latest/download/reflector.yaml`.
 4. Run `kubectl apply -f services/org.yaml`.
+5. Add `registry.k3s.kube` to `/etc/hosts` (It's the cluster private registry).
 
 ## Build necessary images
 
@@ -31,13 +32,14 @@ This repository is using custom postgres image that install vector db extension.
 
 1. Install `nerdctl`.
 2. Install `buildkit`.
-3. Copy `buildkit/buildkitd.toml to /etc/buildkit/buildkitd.toml`.
-4. Copy `buildkit/buildkit.service to /etc/systemd/system/buildkit.service`.
-5. Run `sudo systemctl enable buildkit.service --now` to enable and start buildkit service.
-6. Copy `docker/build-dirs.example` to `docker/build-dirs.txt`. To add another dir as build source, add a new line with the target directory. You can skip the build dir by commenting the line using hashtag (`#`).
-7. Run `./docker/build.sh` to build all registered directories.
-8. The images will be registered to local registry `registry.k3s.kube` and accessible via `registry.k3s.kube/{base-filename}:kube`. For example, `postgres17.6-vector.dockerfile` will be accessible via `registry.k3s.kube/postgres17.6-vector:kube`.
-9. You can add `nerdctl` to NOPASSWD to skip password prompt.
+3. Copy `nerdctl/nerdctl.toml` to `/etc/nerdctl/nerdctl.toml`.
+4. Copy `buildkit/buildkitd.toml` to `/etc/buildkit/buildkitd.toml`.
+5. Copy `buildkit/buildkit.service` to `/etc/systemd/system/buildkit.service`.
+6. Run `sudo systemctl enable buildkit.service --now` to enable and start buildkit service.
+7. Copy `docker/build-dirs.example` to `docker/build-dirs.txt`. To add another dir as build source, add a new line with the target directory. You can skip the build dir by commenting the line using hashtag (`#`).
+8. Run `./docker/build.sh` to build all registered directories.
+9. The images will be registered to local registry `registry.k3s.kube` and accessible via `registry.k3s.kube/{base-filename}:kube`. For example, `postgres17.6-vector.dockerfile` will be accessible via `registry.k3s.kube/postgres17.6-vector:kube`.
+10. You can add `nerdctl` to NOPASSWD to skip password prompt.
 
 ## Setup the infra services
 
