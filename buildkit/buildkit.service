@@ -17,7 +17,6 @@ Security directives (Recommended but optional)
 NoNewPrivileges=yes
 ProtectSystem=full
 ProtectHome=yes
-MemoryDenyWriteExecute=yes
 
 [Install]
 WantedBy=multi-user.target
