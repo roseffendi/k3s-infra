@@ -11,7 +11,7 @@ spec:
     app: minio
   ports:
     - protocol: TCP
-      port: 80  
+      port: 80
       targetPort: 9000
   type: ClusterIP
 ---
@@ -27,7 +27,7 @@ spec:
     app: minio
   ports:
     - protocol: TCP
-      port: 80  
+      port: 80
       targetPort: 9001
   type: ClusterIP
 ---
@@ -50,9 +50,9 @@ spec:
     spec:
       containers:
         - name: minio
-          image: minio/minio:RELEASE.2025-04-22T22-12-26Z-cpuv1
+          image: registry.k3s.kube/minio:kube
           imagePullPolicy: IfNotPresent
-          resources: 
+          resources:
             requests:
               cpu: "10m"
               memory: 16Mi
@@ -80,7 +80,7 @@ spec:
       volumes:
         - name: minio-storage
           hostPath:
-            path: /var/lib/k3s-storage/minio
+            path: /mnt/minio-data
             type: DirectoryOrCreate
 ---
 apiVersion: networking.k8s.io/v1
@@ -109,4 +109,4 @@ spec:
               service:
                 name: minio-console
                 port:
-                  number: 80  
+                  number: 80

@@ -36,30 +36,51 @@ for DIR in "${DOCKERFILE_DIRS[@]}"; do
         RESOLVED_DIR="$DIR"
     fi
 
-    echo "Processing directory: $RESOLVED_DIR"
-    for dockerfile_path in "$RESOLVED_DIR"/*.dockerfile; do
-        # Skip if no dockerfile exists
-        [ -e "$dockerfile_path" ] || continue
-        
-        # Extract base name
+    if [ -d "$RESOLVED_DIR" ]; then
+        echo "Processing directory: $RESOLVED_DIR"
+        for dockerfile_path in "$RESOLVED_DIR"/*.dockerfile; do
+            # Skip if no dockerfile exists
+            [ -e "$dockerfile_path" ] || continue
+
+            # Extract base name
+            base_name=$(basename "$dockerfile_path" .dockerfile)
+
+            # Define image tag
+            image_tag="registry.k3s.kube/${base_name}:kube"
+
+            echo "Building image: $image_tag from $dockerfile_path"
+            sudo nerdctl build \
+                --insecure-registry \
+                --progress plain \
+                -t "$image_tag" -f "$dockerfile_path" \
+                 "$RESOLVED_DIR"
+
+            echo "Pushing image: $image_tag to registry"
+
+            sudo nerdctl push \
+                --insecure-registry \
+                "$image_tag"
+        done
+    else
+        dockerfile_path="$RESOLVED_DIR"
         base_name=$(basename "$dockerfile_path" .dockerfile)
-        
-        # Define image tag
+        build_context=$(dirname "$dockerfile_path")
+
         image_tag="registry.k3s.kube/${base_name}:kube"
-        
+
         echo "Building image: $image_tag from $dockerfile_path"
         sudo nerdctl build \
             --insecure-registry \
             --progress plain \
             -t "$image_tag" -f "$dockerfile_path" \
-             "$RESOLVED_DIR"
+             "$build_context"
 
         echo "Pushing image: $image_tag to registry"
 
         sudo nerdctl push \
             --insecure-registry \
             "$image_tag"
-    done
+    fi
 done
 
 echo "All images built"

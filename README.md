@@ -4,7 +4,7 @@
 This repository is intended to create a simple Kubernetes development infrastructure environment (**All credentials are hardcoded and not secure at all**). It can become a starting point and feel free to adjust it. This cluster is using k3s kubernetes distribution.
 
 1. Mailpit (`latest`)
-2. Minio (`RELEASE.2025-04-22T22-12-26Z-cpuv1`)
+2. Minio (`RELEASE.2025-04-22T22-12-26Z`, built from source)
 3. Mongodb (`8.0.15-noble`) + Mongodb Express (`1.0.2-20-alpine3.19`)
 4. MySql (`8.0`) + PhpMyAdmin (`latest`)
 5. PostgreSql (`17.6-trixie`) + PgAdmin 4 (`latest`)
@@ -28,7 +28,12 @@ This repository is intended to create a simple Kubernetes development infrastruc
 
 ## Build necessary images
 
-This repository is using custom postgres image that install vector db extension. If you're not using the service, feel free to skip it
+This repository uses two custom images, both defined in `docker/images`:
+
+- `postgres17.6-vector`: PostgreSql with the vector db extension.
+- `minio`: Minio built from source. The upstream `minio/minio` images were removed from Docker Hub and Quay, so the pinned release is built from the GitHub source tarball instead.
+
+If you're not using a service, feel free to skip its image.
 
 1. Install `nerdctl`.
 2. Install `buildkit`.
@@ -36,9 +41,9 @@ This repository is using custom postgres image that install vector db extension.
 4. Copy `buildkit/buildkitd.toml` to `/etc/buildkit/buildkitd.toml`.
 5. Copy `buildkit/buildkit.service` to `/etc/systemd/system/buildkit.service`.
 6. Run `sudo systemctl enable buildkit.service --now` to enable and start buildkit service.
-7. Copy `docker/build-dirs.example` to `docker/build-dirs.txt`. To add another dir as build source, add a new line with the target directory. You can skip the build dir by commenting the line using hashtag (`#`).
+7. Copy `docker/build-dirs.example` to `docker/build-dirs.txt`. Uncomment `./images` to build the images above. To add another dir or a single `.dockerfile` as build source, add a new line with the target path. You can skip the build dir by commenting the line using hashtag (`#`).
 8. Run `./docker/build.sh` to build all registered directories.
-9. The images will be registered to local registry `registry.k3s.kube` and accessible via `registry.k3s.kube/{base-filename}:kube`. For example, `postgres17.6-vector.dockerfile` will be accessible via `registry.k3s.kube/postgres17.6-vector:kube`.
+9. The images will be registered to local registry `registry.k3s.kube` and accessible via `registry.k3s.kube/{base-filename}:kube`. For example, `minio.dockerfile` will be accessible via `registry.k3s.kube/minio:kube`.
 10. You can add `nerdctl` to NOPASSWD to skip password prompt.
 
 ## Setup the infra services
