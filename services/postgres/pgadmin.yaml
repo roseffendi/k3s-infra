@@ -27,11 +27,11 @@ spec:
         app: pgadmin
     spec:
       securityContext:
-        fsGroup: 0 
+        fsGroup: 0
       initContainers:
         - name: fix-volume-permissions
-          image: busybox 
-          command: ["sh", "-c", "chmod -R g+rwX /var/lib/pgadmin"]
+          image: busybox
+          command: ["sh", "-c", "chown -R 5050:5050 /var/lib/pgadmin && chmod -R g+rwX /var/lib/pgadmin"]
           volumeMounts:
           - name: pgadmin-storage
             mountPath: /var/lib/pgadmin
@@ -39,13 +39,13 @@ spec:
         - name: pgadmin
           image: dpage/pgadmin4:latest
           imagePullPolicy: IfNotPresent
-          resources: 
+          resources:
             requests:
               cpu: 100m
               memory: 64Mi
             limits:
               cpu: 500m
-              memory: 256Mi
+              memory: 512Mi
           ports:
             - containerPort: 80
           env:
