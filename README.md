@@ -6,7 +6,7 @@ This repository is intended to create a simple Kubernetes development infrastruc
 1. Mailpit (`latest`)
 2. Minio (`RELEASE.2025-04-22T22-12-26Z`, built from source)
 3. Mongodb (`8.0.15-noble`) + Mongodb Express (`1.0.2-20-alpine3.19`)
-4. MySql (`8.0`) + PhpMyAdmin (`latest`)
+4. MySql (`8.4`) + PhpMyAdmin (`latest`)
 5. PostgreSql (`17.6-trixie`) + PgAdmin 4 (`latest`)
 6. Redis (`8.2-alpine`) + Redis Commander (`ghcr.io/joeferner/redis-commander:latest`)
 
